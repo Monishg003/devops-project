@@ -1,0 +1,6 @@
+.env
+*.pem
+*.key
+*.log
+*.tar.gz
+.DS_Store

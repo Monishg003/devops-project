@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.git/
+.gitignore
+README.md
+docs/
+docker-compose*.yml
+Dockerfile*
+*.log
+*.tar.gz
+scripts/
+postgres/
+nginx/

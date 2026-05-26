@@ -67,13 +67,3 @@ docker compose down
 ## Engineer
 
 **Monish G** — Java Spring Boot Developer → DevOps Engineer
-
-Skills: Linux • Docker • Networking • Security •
-        CI/CD • Kubernetes (learning)
-
-## Days Completed
-
-- Day 1-6:   Linux mastery
-- Day 8-13:  Docker (images, networking,
-             volumes, compose, security)
-- Day 14:    Production deployment project

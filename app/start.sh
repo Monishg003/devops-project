@@ -10,6 +10,7 @@ DB_NAME=${DB_NAME:-"appdb"}
 DB_USER=${DB_USER:-"appuser"}
 REDIS_HOST=${REDIS_HOST:-"redis"}
 
+
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
 }
@@ -67,6 +68,7 @@ import http.server
 import json
 import subprocess
 import os
+import time
 from datetime import datetime
 
 APP_NAME = os.environ.get('APP_NAME', 'DevOps Platform')
@@ -76,6 +78,7 @@ DB_PORT = os.environ.get('DB_PORT', '5432')
 DB_NAME = os.environ.get('DB_NAME', 'appdb')
 DB_USER = os.environ.get('DB_USER', 'appuser')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
+SERVER_START_TIME = time.time()
 
 def get_request_count():
     try:
@@ -106,6 +109,51 @@ def log_request(endpoint):
         )
     except:
         pass
+
+def get_total_health_checks():
+    try:
+        env = os.environ.copy()
+        env['PGPASSWORD'] = DB_PASSWORD
+
+        result = subprocess.run(
+            ['psql', '-h', DB_HOST, '-p', DB_PORT,
+             '-U', DB_USER, '-d', DB_NAME,
+             '-t', '-c',
+             'SELECT COUNT(*) FROM app_health;'],
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=5
+        )
+
+        return result.stdout.strip()
+
+    except:
+        return 'N/A'
+
+def get_latest_requests():
+    try:
+        env = os.environ.copy()
+        env['PGPASSWORD'] = DB_PASSWORD
+
+        result = subprocess.run(
+            ['psql', '-h', DB_HOST, '-p', DB_PORT,
+             '-U', DB_USER, '-d', DB_NAME,
+             '-t', '-c',
+             'SELECT endpoint, created_at '
+             'FROM app_requests '
+             'ORDER BY created_at DESC '
+             'LIMIT 2;'],
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=5
+        )
+
+        return result.stdout.strip()
+
+    except:
+        return 'N/A'
 
 def check_db():
     try:
@@ -150,6 +198,16 @@ class AppHandler(http.server.BaseHTTPRequestHandler):
                 'version': APP_VERSION,
                 'database': db_status,
                 'timestamp': datetime.utcnow().isoformat()
+            })
+
+        elif self.path == '/metrics':
+            uptime = int(time.time() - SERVER_START_TIME)
+            self.send_json({
+                'total_requests': get_request_count(),
+                'total_health_checks': get_total_health_checks(),
+                'latest_requests': get_latest_requests(),
+                'database': check_db(),
+                'uptime_seconds': uptime
             })
 
         elif self.path == '/':

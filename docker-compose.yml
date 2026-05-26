@@ -65,6 +65,20 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  adminer:
+    image: adminer:latest
+    container_name: devops-adminer
+    ports:
+      - "9998:8080"
+
+    networks:
+      - backend-net
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
   nginx:
     image: nginx:1.25-alpine
     container_name: devops-nginx

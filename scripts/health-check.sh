@@ -28,6 +28,25 @@ check() {
     fi
 }
 
+check_stats() {
+    local NAME=$1
+    local URL=$2
+
+    RESULT=$(curl -s --max-time 5 "$URL" 2>/dev/null)
+
+    TOTAL_REQUESTS=$(echo "$RESULT" | \
+        grep -o '"total_requests": "[0-9]*"' | \
+        grep -o '[0-9]*')
+
+    if [ -n "$TOTAL_REQUESTS" ]; then
+        echo "✅ $NAME | total requests = $TOTAL_REQUESTS"
+        PASS=$((PASS+1))
+    else
+        echo "❌ $NAME check failed"
+        FAIL=$((FAIL+1))
+    fi
+}
+
 # Check all endpoints
 check "Nginx health"  \
     "$BASE_URL/nginx-health" "nginx"
@@ -37,6 +56,8 @@ check "Main page"     \
     "$BASE_URL" "DevOps Platform"
 check "DB connected"  \
     "$BASE_URL/health" "healthy"
+check_stats "Metrics / stats" \
+    "$BASE_URL/stats"
 
 # Check containers
 echo ""

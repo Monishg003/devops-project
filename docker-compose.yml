@@ -71,7 +71,7 @@ services:
     ports:
       - "${NGINX_PORT:-9999}:80"
     volumes:
-      - ./nginx/conf:/etc/nginx/conf.d:ro
+      - ./nginx/conf:/etc/nginx/conf.d
     networks:
       - frontend-net
     depends_on:

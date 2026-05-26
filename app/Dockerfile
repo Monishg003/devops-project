@@ -20,7 +20,13 @@ LABEL version="1.0.0"
 LABEL project="devops-final-project"
 LABEL security.scan="trivy-verified"
 
-RUN apk add --no-cache bash=5.2.15-r5 curl=8.12.1-r0 wget=1.21.4-r0 postgresql-client && rm -rf /var/cache/apk/*
+RUN apk add --no-cache \
+    bash \
+    curl \
+    wget \
+    python3 \
+    postgresql-client \
+    && rm -rf /var/cache/apk/*
 
 RUN addgroup -S appgroup && \
     adduser -S appuser -G appgroup
